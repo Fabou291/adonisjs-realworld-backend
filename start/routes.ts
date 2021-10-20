@@ -22,3 +22,9 @@ import Route from '@ioc:Adonis/Core/Route'
 
 
 Route.post('users', 'UsersController.store');
+
+Route.post('users/login', 'AuthController.login');
+
+Route.get('user', 'AuthController.me').middleware(['auth']);
+
+Route.put('user', 'UsersController.modify').middleware(['auth']);
