@@ -20,9 +20,13 @@ export default class AuthController {
 
     }
 
-    public async me({auth, response}: HttpContextContract){
+    public async me({auth, response, request}: HttpContextContract){
         return response.ok({
-            user : auth.user!.serialize()
+            user : {
+                ...auth.user!.serialize(),
+                token : request.header('Authorization')!.split(' ')[1]
+            }
+            
         })
     }
 

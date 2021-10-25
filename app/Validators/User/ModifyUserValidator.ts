@@ -32,6 +32,8 @@ export default class ModifyUserValidator {
 			] ),
 			username : schema.string.optional({ trim : true }),
 			password : schema.string.optional(),
+			bio : schema.string.optional(),
+			image : schema.string.optional(),
 		})
 	})
 

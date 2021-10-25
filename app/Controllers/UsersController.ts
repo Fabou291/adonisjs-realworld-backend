@@ -7,14 +7,22 @@ export default class UsersController {
 
     public async store({request, response}: HttpContextContract){
         const payload = await request.validate(StoreUserValidator);
-        const user = await User.create(payload.user);
-        return response.created({user})
+        const user = await User.create(payload.user)
+        return response.created({
+            user : {
+                ...user.merge({bio : null, image : null }).serialize(),
+                token : null
+            }
+        })
     }
 
     public async modify({auth, request, response}: HttpContextContract){
         const payload = await request.validate(ModifyUserValidator);
         const user = await auth.user!.merge(payload.user).save();
-        return response.ok({ user })
+        return response.ok({ user : {
+            ...user.serialize(),
+            token : request.header('Authorization')!.split(' ')[1]
+        } })
     }
 
 }
