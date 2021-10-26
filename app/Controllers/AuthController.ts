@@ -9,11 +9,11 @@ export default class AuthController {
         const { user : { email, password } } = request.body();
         const token = await auth.attempt( email, password);
         
-        const user = auth.user!
+        const user = auth.user!.serializeAttributes()
 
         return response.ok({ 
             user : {
-                ...user.serialize(),
+                ...user,
                 token : token.token
             }
          });
