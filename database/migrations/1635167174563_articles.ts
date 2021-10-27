@@ -10,9 +10,8 @@ export default class Articles extends BaseSchema {
       table.string('slug', 255).notNullable().unique()
       table.text('body').notNullable()
       table.text('description').notNullable()
-      table.integer('users_id')
-      table.json('tag_list').notNullable()
-
+      table.integer('user_id')
+      table.foreign('user_id').references('users.id').onDelete('CASCADE')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
@@ -20,9 +19,6 @@ export default class Articles extends BaseSchema {
       table.timestamp('updated_at', { useTz: true })
     })
 
-    this.schema.alterTable(this.tableName, (table) => {
-      table.foreign('users_id').references('users.id').onDelete('CASCADE')
-    })
   }
 
 

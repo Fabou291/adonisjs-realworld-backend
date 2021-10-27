@@ -2,6 +2,7 @@
 
 import Database from "@ioc:Adonis/Lucid/Database";
 import Article from "App/Models/Article"
+import Tag from "App/Models/Tag";
 import StoreArticleValidator from "App/Validators/Article/StoreArticleValidator";
 
 export default class ArticlesController {
@@ -14,11 +15,17 @@ export default class ArticlesController {
         if(request.qs().author){
             articles = await Database
                 .from('articles')
-                .join('users', 'users.id', '=', 'articles.author_id');
+                .join('users', 'users.id', '=', 'articles.user_id');
             articlesCount = 0;
         }
         else{
-            articles = await Article.all()
+            articles = await Article.all();
+            articles = await Article
+                .query()
+                .join('articles_tags','articles_tags.articles_id','=','articles.id')
+                .join('tags','articles_tags.tags_id','=','tags.id')
+            
+            
             articlesCount = (await Database.from('articles').count('* as total'))[0].total;
         }
 
@@ -36,10 +43,21 @@ export default class ArticlesController {
         response.ok({ articlesCount, articles })
     }
 
-    public async store({request,response}){
-        const payload = await request.validate(StoreArticleValidator);
-        const article = (await Article.create(payload.article)).serialize();
-        response.created({article})
+    public async store({auth, request,response}){
+        const { article : { tagList, ...payload } } = await request.validate(StoreArticleValidator);
+
+
+        const   article = (await Article.create(payload));
+                article.userId = auth.user.id
+
+        /*article.tags = await Tag.fetchOrCreateMany(
+            "name", 
+            tagList.map((nameTag: string) => ({ name : nameTag })),
+        )*/
+
+
+
+        response.created({ article : { ...article.serialize() } })
     }
 
 }

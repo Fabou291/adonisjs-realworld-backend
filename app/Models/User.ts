@@ -37,9 +37,7 @@ export default class User extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @hasMany(() => Article, {
-    foreignKey: 'authorId'
-  })
+  @hasMany(() => Article, { foreignKey: 'authorId' })
   public articles : HasMany<typeof Article>
 
   @beforeSave()
@@ -48,7 +46,7 @@ export default class User extends BaseModel {
       user.password = await Hash.make(user.password)
     }
   }
-
+  
   @beforeCreate()
   public static async createUUID(user: User){
     user.uuid = uuid();

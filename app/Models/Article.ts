@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, computed, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasMany,HasMany, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import { slugify } from '@ioc:Adonis/Addons/LucidSlugify'
+import Tag from './Tag'
 
 export default class Article extends BaseModel {
 
@@ -21,17 +22,16 @@ export default class Article extends BaseModel {
   @column()
   public description: string
 
+  @column()
+  public userId : number
+
   @hasOne(() => User, { foreignKey: 'id' })
   public User: HasOne<typeof User>
 
-  @column({ serializeAs : null })
-  public tagList: string
+  @hasMany(() => Tag, { serializeAs: 'tagList' })
+  public tags: HasMany<typeof Tag>
 
-  @computed({ serializeAs : 'tagList' })
-  public get tagListArray():string[]
-  {
-    return this.tagList.split(',');
-  }
+  
 
   @column.dateTime({ autoCreate: true, serializeAs : 'createdAt' })
   public createdAt: DateTime
