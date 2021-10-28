@@ -1,16 +1,16 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class ArticleTags extends BaseSchema {
-  protected tableName = 'articles_tags'
+  protected tableName = 'article_tag'
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
-      table.primary(['articles_id', 'tags_id'])
-      table.integer('articles_id').notNullable()
-      table.integer('tags_id').notNullable()
+      table.primary(['article_id', 'tag_id'])
+      table.integer('article_id').notNullable()
+      table.integer('tag_id').notNullable()
 
-      table.foreign('articles_id').references('articles.id')
-      table.foreign('tags_id').references('tags.id')
+      table.foreign('article_id').references('articles.id')
+      table.foreign('tag_id').references('tags.id')
     })
   }
 

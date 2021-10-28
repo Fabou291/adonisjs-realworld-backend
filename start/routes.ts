@@ -27,4 +27,5 @@ Route.get('user', 'AuthController.me').middleware(['auth']);
 Route.put('user', 'UsersController.modify').middleware(['auth']);
 
 Route.get('articles', 'ArticlesController.index');
-Route.post('articles', 'ArticlesController.store');
+Route.post('articles', 'ArticlesController.store').middleware(['auth']);
+Route.get('articles/:slug', 'ArticlesController.oneBySlug').middleware(['auth']);

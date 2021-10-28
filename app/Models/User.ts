@@ -6,7 +6,6 @@ import { v4 as uuid } from 'uuid';
 
 export default class User extends BaseModel {
 
-
   @column({ isPrimary : true })
   public id: number
 
@@ -51,6 +50,5 @@ export default class User extends BaseModel {
   public static async createUUID(user: User){
     user.uuid = uuid();
   }
-
 
 }
