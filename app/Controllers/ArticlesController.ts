@@ -6,37 +6,44 @@ import Tag from 'App/Models/Tag'
 import StoreArticleValidator from 'App/Validators/Article/StoreArticleValidator'
 
 import Event from '@ioc:Adonis/Core/Event'
+import { ExtractScopes } from '@ioc:Adonis/Lucid/Orm'
 
 Event.on('db:query', Database.prettyPrint)
 
 export default class ArticlesController {
   public async index({ request, response }) {
-    let articles: Article[]
+    let scope: any = null
 
-    if (request.qs().author) {
-        articles = await Article.query()
-            .withScopes((scopes) => scopes.forAuthor(request.qs().author))
-            .preload('tagList')
-            .preload('author')
-    }
-    else if(request.qs().tag){
-        articles = await Article.query()
-            .withScopes((scopes) => scopes.forTag(request.qs().tag))
-            .preload('tagList')
-            .preload('author')
-    }
-    else {
-      articles = await Article.query().preload('tagList').preload('author')
+    switch(request.qs()){
+      case request.qs().hasOwnProperty('author') : 
+        scope = (scopes: ExtractScopes<typeof Article>) => scopes.forAuthor(request.qs().author);
+      break;
+      case request.qs().hasOwnProperty('tag') : 
+        scope = (scopes: ExtractScopes<typeof Article>) => scopes.forAuthor(request.qs().tag);
+      break;
+      case request.qs().hasOwnProperty('favorited') : 
+        scope = (scopes: ExtractScopes<typeof Article>) => scopes.forAuthor(request.qs().favorited);
+      break;
     }
 
-    /*if(request.qs()) articles = await Article.query();
-        else articles = await Article.query().where('author', request.qs().author);*/
-    /*
-        else if(request.qs().favorited) articles = await Article.query().where('favorited', request.qs().favorited);
-        else if(request.qs().tag) articles = await Article.query().where('tag', request.qs().tag);
-    */
+    const articles = !scope 
+      ? await Article.query()
+          .preload('tagList')
+          .preload('author')
+          .withCount('favorited', (query) => query.as('favoritesCount'))
+          .preload('favorited')
 
-    response.ok({ articlesCount: articles.length, articles })
+      : await Article.query()
+          .preload('tagList')
+          .preload('author')
+          .withCount('favorited', (query) => query.as('favoritesCount'))
+          .preload('favorited')
+          .withScopes(scope);
+
+    response.ok({
+      articlesCount: articles.length,
+      articles: articles.map((article) => article.serialize()),
+    })
   }
 
   public async store({ auth, request, response }) {
@@ -59,10 +66,10 @@ export default class ArticlesController {
     response.created({ article: { ...article.serialize() } })
   }
 
-  public async oneBySlug({request, response}) {
-    const article = (await Article.query().where('slug', request.params().slug))[0];
+  public async oneBySlug({ request, response }) {
+    const article = (await Article.query().where('slug', request.params().slug))[0]
     response.ok({
-        article : article
-    });
+      article: article,
+    })
   }
 }
