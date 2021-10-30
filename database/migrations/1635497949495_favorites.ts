@@ -12,13 +12,6 @@ export default class Favorites extends BaseSchema {
 
       table.foreign('user_id').references('user.id')
       table.foreign('article_id').references('user.id')
-
-
-      /**
-       * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
-       */
-      table.timestamp('created_at', { useTz: true })
-      table.timestamp('updated_at', { useTz: true })
     })
   }
 

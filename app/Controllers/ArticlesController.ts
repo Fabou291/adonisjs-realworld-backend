@@ -7,10 +7,13 @@ import StoreArticleValidator from 'App/Validators/Article/StoreArticleValidator'
 
 import Event from '@ioc:Adonis/Core/Event'
 import { ExtractScopes } from '@ioc:Adonis/Lucid/Orm'
+import UpdateArticleValidator from 'App/Validators/Article/UpdateArticleValidator'
+import User from 'App/Models/User'
 
 Event.on('db:query', Database.prettyPrint)
 
 export default class ArticlesController {
+
   public async index({ request, response }) {
     let scope: any = null
 
@@ -28,17 +31,7 @@ export default class ArticlesController {
 
     const articles = !scope 
       ? await Article.query()
-          .preload('tagList')
-          .preload('author')
-          .withCount('favorited', (query) => query.as('favoritesCount'))
-          .preload('favorited')
-
-      : await Article.query()
-          .preload('tagList')
-          .preload('author')
-          .withCount('favorited', (query) => query.as('favoritesCount'))
-          .preload('favorited')
-          .withScopes(scope);
+      : await Article.query().withScopes(scope);
 
     response.ok({
       articlesCount: articles.length,
@@ -47,29 +40,45 @@ export default class ArticlesController {
   }
 
   public async store({ auth, request, response }) {
-    const {
-      article: { tagList, ...payload },
-    } = await request.validate(StoreArticleValidator)
+    const { article: { tagList, ...payload } } = await request.validate(StoreArticleValidator)
 
     const article = await Article.create({ ...payload, userId: auth.user.id })
 
-    await Tag.fetchOrCreateMany(
+    const tags = await Tag.fetchOrCreateMany(
       'name',
       tagList.map((nameTag: string) => ({ name: nameTag }))
     )
 
-    /*article.tags = await Tag.fetchOrCreateMany(
-        "name", 
-        tagList.map((nameTag: string) => ({ name : nameTag })),
-    )*/
+    await article.related('tags').attach([...tags.map(tag => tag.id)]);
 
-    response.created({ article: { ...article.serialize() } })
+    await article.load((loader) => loader.load('author').load('tags').load('favorited') )
+
+    response.created({ article: article.serialize() })
   }
 
   public async oneBySlug({ request, response }) {
-    const article = (await Article.query().where('slug', request.params().slug))[0]
-    response.ok({
-      article: article,
-    })
+    const articles = await Article.query().where('slug', request.params().slug).limit(1);
+
+    if(articles.length == 0 ) return response.notFound();
+
+    response.ok({ article : articles[0] });
   }
+
+  public async update({auth, request, response }) {
+
+    const articles = await Article.query()
+      .where('slug', request.params().slug )
+      .andWhere('user_id', auth.user.id)
+      .limit(1);
+
+    if(articles.length == 0) return response.notFound();
+
+    const { article: { ...payload } } = await request.validate(UpdateArticleValidator);
+
+    response.ok({ article : (await articles[0].merge(payload).save()) })
+
+  }
+
+
+
 }

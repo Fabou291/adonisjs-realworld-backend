@@ -29,3 +29,7 @@ Route.put('user', 'UsersController.modify').middleware(['auth']);
 Route.get('articles', 'ArticlesController.index')
 Route.post('articles', 'ArticlesController.store').middleware(['auth']);
 Route.get('articles/:slug', 'ArticlesController.oneBySlug').middleware(['auth']);
+Route.put('articles/:slug', 'ArticlesController.update').middleware(['auth']);
+
+Route.post('articles/:slug/favorite', 'FavoritesController.store').middleware(['auth']);
+Route.delete('articles/:slug/favorite', 'FavoritesController.delete').middleware(['auth']);
