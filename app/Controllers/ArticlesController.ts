@@ -8,7 +8,7 @@ import StoreArticleValidator from 'App/Validators/Article/StoreArticleValidator'
 import Event from '@ioc:Adonis/Core/Event'
 import { ExtractScopes } from '@ioc:Adonis/Lucid/Orm'
 import UpdateArticleValidator from 'App/Validators/Article/UpdateArticleValidator'
-import User from 'App/Models/User'
+
 
 Event.on('db:query', Database.prettyPrint)
 
@@ -51,7 +51,7 @@ export default class ArticlesController {
 
     await article.related('tags').attach([...tags.map(tag => tag.id)]);
 
-    await article.load((loader) => loader.load('author').load('tags').load('favorited') )
+    await article.load((loader) => loader.load('author').load('tags').load('favorites') )
 
     response.created({ article: article.serialize() })
   }
@@ -59,7 +59,7 @@ export default class ArticlesController {
   public async oneBySlug({ request, response }) {
     const articles = await Article.query().where('slug', request.params().slug).limit(1);
 
-    if(articles.length == 0 ) return response.notFound();
+    if(articles.length == 0 ) return response.notFound({ message : 'Noone article found'});
 
     response.ok({ article : articles[0] });
   }
@@ -75,10 +75,21 @@ export default class ArticlesController {
 
     const { article: { ...payload } } = await request.validate(UpdateArticleValidator);
 
+
+
     response.ok({ article : (await articles[0].merge(payload).save()) })
 
   }
 
+  public async delete({auth,request,response}){
 
+    await Article.query()
+      .where('slug', request.params().slug)
+      .where('user_id', auth.user.id)
+      .delete()
+
+    response.noContent();
+
+  }
 
 }

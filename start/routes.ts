@@ -27,9 +27,14 @@ Route.get('user', 'AuthController.me').middleware(['auth']);
 Route.put('user', 'UsersController.modify').middleware(['auth']);
 
 Route.get('articles', 'ArticlesController.index')
+Route.get('articles/:slug', 'ArticlesController.oneBySlug');
 Route.post('articles', 'ArticlesController.store').middleware(['auth']);
-Route.get('articles/:slug', 'ArticlesController.oneBySlug').middleware(['auth']);
 Route.put('articles/:slug', 'ArticlesController.update').middleware(['auth']);
+Route.delete('articles/:slug', 'ArticlesController.delete').middleware(['auth']);
 
 Route.post('articles/:slug/favorite', 'FavoritesController.store').middleware(['auth']);
 Route.delete('articles/:slug/favorite', 'FavoritesController.delete').middleware(['auth']);
+
+Route.get('articles/:slug/comments', 'CommentsController.index');
+Route.post('articles/:slug/comments', 'CommentsController.store').middleware(['auth']);
+Route.delete('articles/:slug/comments/:id', 'CommentsController.delete').middleware(['auth']);

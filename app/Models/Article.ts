@@ -81,7 +81,7 @@ export default class Article extends BaseModel {
   }
 
 
-  // -- Scopes déclarations -- 
+  // -- Scopes declarations -- 
   public static forAuthor = scope((query, username) => {
     const subQuery = Database
       .from('users')
