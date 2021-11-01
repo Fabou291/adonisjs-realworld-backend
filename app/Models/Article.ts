@@ -53,12 +53,6 @@ export default class Article extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: 'updatedAt' })
   public updatedAt: DateTime
 
-  public serializeExtras() {
-    return {
-      favoritesCount: this.$extras.favoritesCount
-    }
-  }
-
   // -- Computed properties -- 
   @computed()
   public get tagList(): string[]

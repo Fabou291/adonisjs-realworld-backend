@@ -38,3 +38,9 @@ Route.delete('articles/:slug/favorite', 'FavoritesController.delete').middleware
 Route.get('articles/:slug/comments', 'CommentsController.index');
 Route.post('articles/:slug/comments', 'CommentsController.store').middleware(['auth']);
 Route.delete('articles/:slug/comments/:id', 'CommentsController.delete').middleware(['auth']);
+
+Route.get('profiles/:username', 'ProfilesController.oneByUsername').middleware(['auth']).where('username', /^celeb_\S*$/);
+Route.post('profiles/:username/follow', 'ProfilesController.store').middleware(['auth']).where('username', /^celeb_\S*$/);
+Route.delete('profiles/:username/follow', 'ProfilesController.delete').middleware(['auth']).where('username', /^celeb_\S*$/);
+
+Route.get('tags', 'TagsController.index');

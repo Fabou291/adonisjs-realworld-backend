@@ -30,7 +30,9 @@ export default class StoreUserValidator {
 			  rules.email(),
 			  rules.unique({ table: 'users', column: 'email' }),
 		  ] ),
-		  username : schema.string({ trim : true }),
+		  username : schema.string({ trim : true }, [
+				rules.regex(/^[a-zA-Z0-9_-]+$/)
+		  ]),
 		  password : schema.string(),
 		})
   })

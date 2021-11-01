@@ -12,7 +12,7 @@ export default class FavoritesController {
         await article.related('favorites').attach([auth.user.id]);
     
         await article.load(loader => loader.load('author').load('favorites').load('tags'))
-    
+
         response.created({article : article.serialize()})
     }
 
@@ -22,7 +22,7 @@ export default class FavoritesController {
         await article.related('favorites').detach([auth.user.id]);
     
         await article.load(loader => loader.load('author').load('favorites').load('tags'))
-    
+
         response.ok({article : article.serialize()})
     }
 
